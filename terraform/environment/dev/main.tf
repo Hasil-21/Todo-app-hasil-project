@@ -28,3 +28,14 @@ module "cloudfront"{
 	environment = "dev"
 }
 
+module "rds"{
+	source = "../../modules/rds"
+
+	environment = "dev"
+	vpc_id = mpdule.network.vpc_id
+	db_name = "todo-app-db"
+	db_username = "todo-app-admin" 
+	private_subnet_ids = module.network.private_subnet_ids
+	allowed_security_group_ids = []
+	allowed_cidr_blocks = ["0.0.0.0/0"]
+}

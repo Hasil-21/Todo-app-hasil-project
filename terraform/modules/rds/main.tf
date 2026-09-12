@@ -28,9 +28,10 @@ resource "aws_secretsmanager_secret" "db"{
 resource "aws_secretsmanager_secret_version" "db"{
 	secret_id = aws_secretsmanager_secret.db.id
 	secret_string = jsonencode({
-		username = var.db_username
-		password = random_password.db.result
+		username = var.db_username,
+		password = random_password.db.result,
 		dbname = var.db_name
+	})
 }
 
 resource "aws_db_subnet_group" "this"{
@@ -60,19 +61,42 @@ resource "aws_security_group" "db"{
 	}
 
 	ingress {
+		count = length(var.allowed_cidr_blocks) > 0 ? 1 : 0
+		protocol = "tcp"
+		from_protocol = 5432
+		to_protocol = 5432
+		cidr_blocks = var.allowed_cidr_blocks
+	}
 
+	egress {
+		protocol = "-1"
+		from_protocol = 0
+		to_protocol = 0
+		cidr_blocks = ["0.0.0.0/0"]
+	}
 }
-
-resource
 
 
 resource "aws_db_instance" "this" {
-	 allocated_storage    = 20
-	 db_name              = "${local.name}-db"
-	 engine               = "postgres"
-	 engine_version       = "18.3"
-	 instance_class       = "db.t3.micro"
-	 username             = var.username
-	 password             = var.dbpassword
-	 skip_final_snapshot  = true
+	identifier = "${local.name}-postgres"
+	allocated_storage    = 20
+	storage_type = "gp3"
+	storage_encrypted = true
+	db_name              = var.db_name
+	engine               = "postgres"
+	engine_version       = "18.3"
+	instance_class       = "db.t3.micro"
+	username             = var.db_username
+	password             = random_password.db.result
+	port = 5432
+
+	multi_az = false
+	publicly_accessible = false
+	backup_retention_period = 0
+	deletion_protection = false
+	skip_final_snapshot  = true
+
+	tags = {
+		Name = "${local.name}-db"
+	}
 }

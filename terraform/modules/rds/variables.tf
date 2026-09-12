@@ -1,6 +1,6 @@
 variable "name_prefix"{
 	type = string
-	defualt = "todo-app"
+	default = "todo-app"
 }
 
 variable "environment"{
@@ -32,3 +32,6 @@ variable "allowed_security_group_ids"{
 	type = list(string)
 }
 
+variable "allowed_cidr_blocks" {
+	type = list(string)
+}
