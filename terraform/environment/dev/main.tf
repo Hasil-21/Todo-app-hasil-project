@@ -32,10 +32,28 @@ module "rds"{
 	source = "../../modules/rds"
 
 	environment = "dev"
-	vpc_id = mpdule.network.vpc_id
-	db_name = "todo-app-db"
-	db_username = "todo-app-admin" 
+	vpc_id = module.network.vpc_id
+	db_name = "todoAppDb"
+	db_username = "todoAppAdmin" 
 	private_subnet_ids = module.network.private_subnet_ids
-	allowed_security_group_ids = []
-	allowed_cidr_blocks = ["0.0.0.0/0"]
+	allowed_security_group_ids = [module.ecs.ecs_tasks_security_group_id]
+	allowed_cidr_blocks = []
+}
+
+module "ecs"{
+	source = "../../modules/ecs"
+	
+	environment = "dev"
+	vpc_id = module.network.vpc_id
+	private_subnet_ids = module.network.private_subnet_ids
+	public_subnet_ids = module.network.public_subnet_ids
+	db_secret_arn = module.rds.secrets_manager_secret_arn
+	environment_variables = {
+		PORT = "5000"
+		PGDATABASE = "todoAppDb"
+		CLIENT_ORIGIN = "https://${module.cloudfront.cloudfront_domain_name}"
+		PGHOST = module.rds.db_endpoint
+		PGPORT = "5432"
+		AWS_REGION = "ap-south-1"
+	}
 }

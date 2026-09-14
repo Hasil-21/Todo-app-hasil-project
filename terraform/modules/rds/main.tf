@@ -11,14 +11,14 @@ locals {
 resource "random_password" "db" {
 	length = 20
 	special = true
-	min_uper = 2
+	min_upper = 2
 	min_lower = 2
 	min_numeric = 2
 	override_special = "!#$%^&*()-_=+[]{}<>:?"
 }	
 
 resource "aws_secretsmanager_secret" "db"{
-	name = "${local.name-db-password}"
+	name = "${local.name}-db-password"
 
 	tags = {
 		Name = "${local.name}-db-password"
@@ -52,30 +52,34 @@ resource "aws_security_group" "db"{
 		Name = "${local.name}-db-sg"
 	}
 
-	ingress {
-		count = length(var.allowed_security_group_ids)	
-		protocol = "tcp"
-		from_port = 5432
-		to_port = 5432
-		source_security_group_id = var.allowed_security_group_ids[count.index] 
-	}
-
-	ingress {
-		count = length(var.allowed_cidr_blocks) > 0 ? 1 : 0
-		protocol = "tcp"
-		from_protocol = 5432
-		to_protocol = 5432
-		cidr_blocks = var.allowed_cidr_blocks
-	}
-
 	egress {
 		protocol = "-1"
-		from_protocol = 0
-		to_protocol = 0
+		from_port = 0
+		to_port = 0
 		cidr_blocks = ["0.0.0.0/0"]
 	}
 }
 
+
+resource "aws_security_group_rule" "db_ingress_sg"{
+  count                    = length(var.allowed_security_group_ids)
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 5432
+  to_port                  = 5432
+  security_group_id        = aws_security_group.db.id
+  source_security_group_id = var.allowed_security_group_ids[count.index]
+}
+
+resource "aws_security_group_rule" "db_ingress_cidr" {
+  count             = length(var.allowed_cidr_blocks) > 0 ? 1 : 0
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 5432
+  to_port           = 5432
+  security_group_id = aws_security_group.db.id
+  cidr_blocks       = var.allowed_cidr_blocks
+}
 
 resource "aws_db_instance" "this" {
 	identifier = "${local.name}-postgres"

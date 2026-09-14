@@ -1,5 +1,5 @@
 output "db_endpoint"{
-	value = aws_db_insatnce.this.endpoint
+	value = aws_db_instance.this.endpoint
 }
 
 output "db_port"{
@@ -7,7 +7,7 @@ output "db_port"{
 }
 
 output "db_name"{
-	value = aws_db_insatnce.this.db_name
+	value = aws_db_instance.this.db_name
 }
 
 output "db_password"{
