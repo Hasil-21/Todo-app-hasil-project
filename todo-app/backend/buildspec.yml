@@ -8,7 +8,7 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)
   build:
     commands:
-      - cd todo-app-backend
+      - cd backend
       - echo Building image...
       - docker build -t $ECR_REPO_URL:$COMMIT_HASH -t $ECR_REPO_URL:latest .
   post_build:
