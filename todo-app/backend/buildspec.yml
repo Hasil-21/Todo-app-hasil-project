@@ -6,9 +6,10 @@ phases:
       - echo Logging in to ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)
-      - cd todo-app/backend
   build:
     commands:
+      - pwd
+      - ls -la
       - cd todo-app/backend
       - echo Building image...
       - docker build -t $ECR_REPO_URL:$COMMIT_HASH -t $ECR_REPO_URL:latest .
@@ -23,3 +24,4 @@ phases:
 artifacts:
   files:
     - todo-app/backend/imagedefinitions.json
+  discard-paths: yes
