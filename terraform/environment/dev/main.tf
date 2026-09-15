@@ -59,3 +59,14 @@ module "cloudfront"{
 	domain_name = module.ecs.alb_dns_name
 }
 
+module "pipeline"{
+	source = "../../modules/pipeline"
+	
+	environment = "dev"
+	ecr_repository_url = module.ecs.ecr_repository_url 
+	ecs_service_name = module.ecs.service_name
+	ecs_cluster_name = module.ecs.cluster_name
+	
+	fe_bucket_name = module.cloudfront.bucket_name
+	cf_distribution_id = module.cloudfront.cloudfront_distribution_id	
+} 

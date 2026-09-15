@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - cd todo-app/frontend
+      - echo Installing dependencies...
+      - npm ci
+  build:
+    commands:
+      - echo Building frontend...
+      - npm run build
+  post_build:
+    commands:
+      - echo syncing s3...
+      - aws s3 sync ./dist s3://$FE_BUCKET --delete
+      - echo Invalidating CloudFront cache...
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
