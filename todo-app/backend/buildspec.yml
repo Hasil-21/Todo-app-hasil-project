@@ -15,9 +15,6 @@ phases:
       - docker build -t $ECR_REPO_URL:$COMMIT_HASH -t $ECR_REPO_URL:latest .
   post_build:
     commands:
-      - pwd
-      - ls -la
-      - cd todo-app/backend
       - echo Pushing image...
       - docker push $ECR_REPO_URL:$COMMIT_HASH
       - docker push $ECR_REPO_URL:latest
