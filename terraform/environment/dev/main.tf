@@ -22,12 +22,6 @@ module "network"{
 	private_subnet_cidrs = ["10.0.3.0/24","10.0.4.0/24"]
 }
 
-module "cloudfront"{
-	source = "../../modules/cloudfront"
-
-	environment = "dev"
-}
-
 module "rds"{
 	source = "../../modules/rds"
 
@@ -57,3 +51,11 @@ module "ecs"{
 		AWS_REGION = "ap-south-1"
 	}
 }
+
+module "cloudfront"{
+	source = "../../modules/cloudfront"
+
+	environment = "dev"
+	domain_name = module.ecs.alb_dns_name
+}
+

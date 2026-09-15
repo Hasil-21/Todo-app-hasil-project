@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-8)
+  build:
+    commands:
+      - echo Building image...
+      - docker build -t $ECR_REPO_URL:$COMMIT_HASH -t $ECR_REPO_URL:latest .
+  post_build:
+    commands:
+      - echo Pushing image...
+      - docker push $ECR_REPO_URL:$COMMIT_HASH
+      - docker push $ECR_REPO_URL:latest
+      - printf '[{"name":"%s","imageUri":"%s"}]' "backend" "$ECR_REPO_URL:$COMMIT_HASH" > imagedefinitions.json
+      - cat imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json

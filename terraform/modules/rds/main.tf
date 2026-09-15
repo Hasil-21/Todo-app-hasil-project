@@ -18,10 +18,10 @@ resource "random_password" "db" {
 }	
 
 resource "aws_secretsmanager_secret" "db"{
-	name = "${local.name}-db-password"
+	name = "${local.name}-db-password-3"
 
 	tags = {
-		Name = "${local.name}-db-password"
+		Name = "${local.name}-db-password-3"
 	}	
 }
 
@@ -93,7 +93,10 @@ resource "aws_db_instance" "this" {
 	username             = var.db_username
 	password             = random_password.db.result
 	port = 5432
-
+	
+	db_subnet_group_name = aws_db_subnet_group.this.name
+	vpc_security_group_ids = [aws_security_group.db.id]
+	
 	multi_az = false
 	publicly_accessible = false
 	backup_retention_period = 0
