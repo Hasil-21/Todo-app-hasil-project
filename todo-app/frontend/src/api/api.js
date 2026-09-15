@@ -1,7 +1,7 @@
 // Central place for the backend base URL. When you deploy to AWS,
 // change VITE_API_URL to your API Gateway invoke URL / ALB DNS name
 // in the frontend's .env — no other code needs to change.
-const API_URL = import.meta.env.VITE_API_URL || 'http://todo-app-alb-1238985672.ap-south-1.elb.amazonaws.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://todo-app-alb-231462298.ap-south-1.elb.amazonaws.com/api';
 
 async function handle(res) {
   const data = await res.json().catch(() => ({}));
