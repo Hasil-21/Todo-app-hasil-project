@@ -139,6 +139,12 @@ resource "aws_iam_role_policy" "codepipeline"{
         Resource = aws_codebuild_project.build.arn
       },
       {
+        Sid      = "TriggerFrontendCodeBuild"
+        Effect   = "Allow"
+        Action   = ["codebuild:BatchGetBuilds", "codebuild:StartBuild"]
+        Resource = aws_codebuild_project.build_frontend.arn
+      },
+      {
         Sid    = "DeployToEcs"
         Effect = "Allow"
         Action = [
