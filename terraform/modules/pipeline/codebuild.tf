@@ -48,6 +48,11 @@ resource "aws_codebuild_project" "build_frontend"{
 			name = "CLOUDFRONT_DISTRIBUTION_ID"
 			value = var.cf_distribution_id
 		}
+
+		environment_variable {
+			name = "VITE_API_URL"
+			value = var.vite_api_url
+		}
 	}
 
 	source {

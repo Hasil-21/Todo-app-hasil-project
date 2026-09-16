@@ -8,6 +8,7 @@ phases:
       - npm ci
   build:
     commands:
+      - echo VITE_API_URL = $API_URL >> .env
       - echo Building frontend...
       - npm run build
   post_build:

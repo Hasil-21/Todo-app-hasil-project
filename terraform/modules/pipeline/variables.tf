@@ -57,3 +57,8 @@ variable "fe_buildspec_path"{
 	type = string
 	default = "todo-app/frontend/buildspec.yml"
 }
+
+variable "vite_api_url"{
+	type = string
+}
+

@@ -69,4 +69,5 @@ module "pipeline"{
 	
 	fe_bucket_name = module.cloudfront.bucket_name
 	cf_distribution_id = module.cloudfront.cloudfront_distribution_id	
+	vite_api_url = "http://${module.ecs.alb_dns_name}/api"
 } 
