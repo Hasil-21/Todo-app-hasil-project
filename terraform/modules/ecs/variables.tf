@@ -38,3 +38,7 @@ variable "environment_variables" {
   description = "Plain (non-secret) env vars for the container"
   type        = map(string)
 }
+
+variable "repository_url"{
+	type = string
+}

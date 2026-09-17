@@ -17,3 +17,8 @@ output "node_security_group_id" {
 output "oidc_provider_arn" {
   value = aws_iam_openid_connect_provider.eks.arn
 }
+
+
+output "alb_controller_helm_release" {
+	value = helm_release.alb_controller
+}

@@ -10,9 +10,6 @@ output "alb_arn" {
   value = aws_lb.backend.arn
 }
 
-output "ecr_repository_url" {
-  value = aws_ecr_repository.backend.repository_url
-}
 
 output "cluster_name" {
   value = aws_ecs_cluster.backend.name
