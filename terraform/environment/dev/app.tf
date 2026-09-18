@@ -2,7 +2,7 @@ resource "kubernetes_namespace" "todo_app" {
 	metadata {
 		name = "todo-app"
 	}
-	depends_on = [module.eks]
+	depends_on = [module.eks.alb_controller_helm_release]
 }
 
 
@@ -23,7 +23,7 @@ resource "kubernetes_config_map" "todo_app"{
 }
 
 data "aws_secretsmanager_secret_version" "db"{
-	secret_id = "todo-app-dev-ap-south-1-db-password-6"
+	secret_id = module.rds.secret_id
 
 	depends_on = [module.rds.secrets_manager_secret_arn]
 }
