@@ -18,8 +18,11 @@ app.get('/health', (req, res) => res.json({status : 'ok'}));
 app.use('/api', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
   });
+
+server.keepAliveTimeout = 65000;
+server.keepAliveTimeoutBuffer = 66000;
 
 module.exports = app;

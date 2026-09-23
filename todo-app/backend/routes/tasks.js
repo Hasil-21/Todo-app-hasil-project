@@ -4,11 +4,37 @@ const snsClient = new SNSClient({region: process.env.AWS_REGION});
 const router = express.Router();
 const pool = require('../db');
 
-// GET /api/tasks - list all tasks (used by the "view tasks" page)
+// GET /api/tasks?page=1&limit=10 - list tasks with pagination
 router.get('/', async (req, res) => {
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
+  const offset = (page - 1) * limit;
+
   try {
-    const result = await pool.query('SELECT * FROM tasks ORDER BY id DESC');
-    res.json(result.rows);
+    // COUNT(*) OVER() gets the total row count in the same query,
+    // so we avoid a second round trip to the DB.
+    const [rowsResult, countResult] = await Promise.all([
+      pool.query(
+        `SELECT * FROM tasks ORDER BY id DESC LIMIT $1 OFFSET $2`,
+        [limit, offset]
+      ),
+      pool.query(
+        `SELECT reltuples::bigint AS estimate FROM pg_class WHERE relname = 'tasks'`
+      )
+    ]);
+    
+    const tasks = rowsResult.rows;
+    const total = parseInt(countResult.rows[0].estimate, 10);
+
+    res.json({
+      tasks,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
+      },
+    });
   } catch (err) {
     console.error('Error fetching tasks:', err);
     res.status(500).json({ message: 'Server error' });
@@ -16,8 +42,6 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/tasks - create a task (used by the "add task" page)
-// This is the natural place to later publish an SNS notification or
-// push a message onto SQS ("task created") once you wire AWS in.
 router.post('/', async (req, res) => {
   const { title, description, status } = req.body;
 
@@ -51,8 +75,6 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/tasks/:id/status - update just the status
-// (we're deliberately not building a full edit page for now —
-// this is the only "update" the app supports)
 router.patch('/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;

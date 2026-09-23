@@ -1,29 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { getTasks, updateTaskStatus, deleteTask } from '../api/api';
 
-// Page 2: shows created tasks. No editing — only "mark completed" and
-// "delete" for now, as requested.
+const LIMIT = 10;
+
+// Page 2: shows created tasks, paginated. No editing — only "mark completed"
+// and "delete" for now, as requested.
 export default function TaskList() {
   const [tasks, setTasks] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
 
-  const loadTasks = async () => {
+  const loadTasks = async (targetPage) => {
     try {
-      const data = await getTasks();
-      setTasks(data);
+      const data = await getTasks(targetPage, LIMIT);
+      setTasks(data.tasks);
+      setTotalPages(data.pagination.totalPages);
+      // If we deleted the last item on a page, snap back to a valid page.
+      if (targetPage > data.pagination.totalPages) {
+        setPage(data.pagination.totalPages);
+      }
     } catch (err) {
       setError(err.message);
     }
   };
 
   useEffect(() => {
-    loadTasks();
-  }, []);
+    loadTasks(page);
+  }, [page]);
 
   const handleComplete = async (id) => {
     try {
       await updateTaskStatus(id, 'completed');
-      loadTasks();
+      loadTasks(page);
     } catch (err) {
       setError(err.message);
     }
@@ -32,7 +41,7 @@ export default function TaskList() {
   const handleDelete = async (id) => {
     try {
       await deleteTask(id);
-      loadTasks();
+      loadTasks(page);
     } catch (err) {
       setError(err.message);
     }
@@ -62,6 +71,18 @@ export default function TaskList() {
           </div>
         </div>
       ))}
+
+      {totalPages > 1 && (
+        <div className="pagination" style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+            Prev
+          </button>
+          <span>Page {page} of {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

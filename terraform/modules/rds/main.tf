@@ -18,10 +18,10 @@ resource "random_password" "db" {
 }	
 
 resource "aws_secretsmanager_secret" "db"{
-	name = "${local.name}-db-password-7"
+	name = "${local.name}-db-password-test"
 
 	tags = {
-		Name = "${local.name}-db-password-7"
+		Name = "${local.name}-db-password-test"
 	}	
 }
 

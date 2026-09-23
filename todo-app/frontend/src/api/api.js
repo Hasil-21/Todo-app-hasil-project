@@ -18,8 +18,8 @@ export const login = (username, password) =>
     body: JSON.stringify({ username, password }),
   }).then(handle);
 
-export const getTasks = () =>
-  fetch(`/api/tasks`).then(handle);
+export const getTasks = (page = 1, limit = 10) =>
+  fetch(`/api/tasks?page=${page}&limit=${limit}`).then(handle);
 
 export const createTask = (task) =>
   fetch(`/api/tasks`, {
